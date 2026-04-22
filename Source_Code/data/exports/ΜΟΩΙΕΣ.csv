@@ -1,0 +1,5 @@
+ID,Title,Category,Status,Rating,Notes,Image Path
+10,Clean Code,Book,In Progress,9.1,Reading for software design ideas,../data/covers/clean_code.jpg
+8,Hades,Game,In Progress,9.2,Very fun combat and progression,../data/covers/hades.jpeg
+20,Severance,Series,In Progress,9.3,Interesting mystery and atmosphere,../data/covers/severance.jpg
+5,Stranger Things,Series,In Progress,8.7,Currently watching season 3,../data/covers/stranger_things.jpeg

@@ -225,3 +225,21 @@ class MediaDatabase:
             notes=row[5] or "",
             image_path=row[6] or ""
         )
+    def update_item(self, item: MediaItem) -> bool:
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE media_items
+                SET title = ?, category = ?, status = ?, rating = ?, notes = ?, image_path = ?
+                WHERE id = ?
+            """, (
+                item.title,
+                item.category,
+                item.status,
+                item.rating,
+                item.notes,
+                item.image_path,
+                item.item_id
+            ))
+            conn.commit()
+            return cursor.rowcount > 0
