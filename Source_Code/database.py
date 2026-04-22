@@ -145,6 +145,30 @@ class MediaDatabase:
 
         return [self._row_to_media_item(row) for row in rows]
 
+    def update_status(self, item_id: int, new_status: str) -> bool:
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE media_items
+                SET status = ?
+                WHERE id = ?
+            """, (new_status, item_id))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def toggle_completed_status(self, item_id: int) -> bool:
+        item = self.get_item_by_id(item_id)
+
+        if item is None:
+            return False
+
+        if item.status == "Completed":
+            new_status = "Planned"
+        else:
+            new_status = "Completed"
+
+        return self.update_status(item_id, new_status)
+
     def _row_to_media_item(self, row) -> MediaItem:
         return MediaItem(
             item_id=row[0],

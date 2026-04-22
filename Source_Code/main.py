@@ -129,6 +129,23 @@ def sort_items_flow(db: MediaDatabase):
     print()
 
 
+def toggle_status_flow(db: MediaDatabase):
+    print("\nMark as Watched/Read Toggle")
+    item_id_input = input("Enter item ID: ").strip()
+
+    if not item_id_input.isdigit():
+        print("Invalid ID.\n")
+        return
+
+    item_id = int(item_id_input)
+    updated = db.toggle_completed_status(item_id)
+
+    if updated:
+        print("Item status toggled successfully.\n")
+    else:
+        print("No item found with that ID.\n")
+
+
 def main():
     db = MediaDatabase()
 
@@ -139,7 +156,8 @@ def main():
         print("3. Delete item")
         print("4. Search items")
         print("5. Sort items")
-        print("6. Exit")
+        print("6. Toggle watched/read status")
+        print("7. Exit")
 
         choice = input("Choose an option: ").strip()
 
@@ -154,6 +172,8 @@ def main():
         elif choice == "5":
             sort_items_flow(db)
         elif choice == "6":
+            toggle_status_flow(db)
+        elif choice == "7":
             print("Goodbye.")
             break
         else:
