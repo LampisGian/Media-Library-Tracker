@@ -243,3 +243,49 @@ class MediaDatabase:
             ))
             conn.commit()
             return cursor.rowcount > 0
+
+    def get_category_statistics(self) -> dict:
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT category, COUNT(*)
+                FROM media_items
+                GROUP BY category
+                ORDER BY category ASC
+            """)
+            rows = cursor.fetchall()
+
+        stats = {}
+        for category, count in rows:
+            stats[category] = count
+
+        return stats
+
+
+    def get_completion_statistics(self) -> dict:
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT
+                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed_count,
+                    SUM(CASE WHEN status != 'Completed' THEN 1 ELSE 0 END) AS not_completed_count
+                FROM media_items
+            """)
+            row = cursor.fetchone()
+
+        completed = row[0] if row and row[0] is not None else 0
+        not_completed = row[1] if row and row[1] is not None else 0
+
+        return {
+            "completed": completed,
+            "not_completed": not_completed
+        }
+
+
+    def get_all_statistics(self) -> dict:
+        return {
+            "by_category": self.get_category_statistics(),
+            "completion": self.get_completion_statistics()
+        }   
+
+            

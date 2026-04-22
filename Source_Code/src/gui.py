@@ -17,7 +17,7 @@ class ItemDialog(tk.Toplevel):
         self.item = item
 
         self.title("Edit Media Item" if item else "Add New Media Item")
-        self.geometry("460x560")
+        self.geometry("460x650")
         self.resizable(False, False)
         self.configure(bg="#14171A")
 
@@ -64,18 +64,9 @@ class ItemDialog(tk.Toplevel):
             relief="flat"
         )
 
-        def on_enter(_):
-            btn.config(bg=active_bg)
-
-        def on_leave(_):
-            btn.config(bg=bg)
-
-        def on_click(_):
-            command()
-
-        btn.bind("<Enter>", on_enter)
-        btn.bind("<Leave>", on_leave)
-        btn.bind("<Button-1>", on_click)
+        btn.bind("<Enter>", lambda _: btn.config(bg=active_bg))
+        btn.bind("<Leave>", lambda _: btn.config(bg=bg))
+        btn.bind("<Button-1>", lambda _: command())
 
         return btn
 
@@ -83,14 +74,13 @@ class ItemDialog(tk.Toplevel):
         container = tk.Frame(self, bg="#14171A")
         container.pack(fill="both", expand=True, padx=20, pady=20)
 
-        title = tk.Label(
+        tk.Label(
             container,
             text="Edit Item" if self.item else "Add New Item",
             bg="#14171A",
             fg="white",
             font=("Helvetica", 18, "bold")
-        )
-        title.pack(anchor="w", pady=(0, 20))
+        ).pack(anchor="w", pady=(0, 20))
 
         self._label(container, "Title")
         tk.Entry(
@@ -274,8 +264,8 @@ class MediaLibraryGUI(tk.Tk):
 
         self.db = MediaDatabase()
         self.title("Media Library Tracker")
-        self.geometry("1500x920")
-        self.minsize(1200, 800)
+        self.geometry("1500x900")
+        self.minsize(1200, 760)
         self.configure(bg="#0E1114")
 
         self.filtered_items = []
@@ -323,34 +313,24 @@ class MediaLibraryGUI(tk.Tk):
         if width is not None:
             btn.config(width=width)
 
-        def on_enter(_):
-            btn.config(bg=active_bg)
-
-        def on_leave(_):
-            btn.config(bg=bg)
-
-        def on_click(_):
-            command()
-
-        btn.bind("<Enter>", on_enter)
-        btn.bind("<Leave>", on_leave)
-        btn.bind("<Button-1>", on_click)
+        btn.bind("<Enter>", lambda _: btn.config(bg=active_bg))
+        btn.bind("<Leave>", lambda _: btn.config(bg=bg))
+        btn.bind("<Button-1>", lambda _: command())
 
         return btn
 
     def _build_ui(self):
-        self.topbar = tk.Frame(self, bg="#11161B", height=70)
+        self.topbar = tk.Frame(self, bg="#11161B", height=64)
         self.topbar.pack(fill="x", side="top")
         self.topbar.pack_propagate(False)
 
-        title = tk.Label(
+        tk.Label(
             self.topbar,
             text="Media Library Tracker",
             bg="#11161B",
             fg="white",
             font=("Helvetica", 20, "bold")
-        )
-        title.pack(side="left", padx=20)
+        ).pack(side="left", padx=24)
 
         self._make_button(
             self.topbar,
@@ -358,7 +338,7 @@ class MediaLibraryGUI(tk.Tk):
             command=self.open_add_dialog,
             bg="#2E7CF6",
             active_bg="#4B91FF"
-        ).pack(side="right", padx=(10, 20), pady=12)
+        ).pack(side="right", padx=(10, 20), pady=10)
 
         self._make_button(
             self.topbar,
@@ -366,7 +346,7 @@ class MediaLibraryGUI(tk.Tk):
             command=self.delete_selected,
             bg="#D9534F",
             active_bg="#E46A66"
-        ).pack(side="right", padx=10, pady=12)
+        ).pack(side="right", padx=10, pady=10)
 
         self._make_button(
             self.topbar,
@@ -374,9 +354,9 @@ class MediaLibraryGUI(tk.Tk):
             command=self.toggle_selected_status,
             bg="#2A2F36",
             active_bg="#3A414A"
-        ).pack(side="right", padx=10, pady=12)
+        ).pack(side="right", padx=10, pady=10)
 
-        self.filter_bar = tk.Frame(self, bg="#161B21", height=74)
+        self.filter_bar = tk.Frame(self, bg="#161B21", height=68)
         self.filter_bar.pack(fill="x", side="top")
         self.filter_bar.pack_propagate(False)
 
@@ -388,19 +368,19 @@ class MediaLibraryGUI(tk.Tk):
             insertbackground="white",
             relief="flat",
             font=("Helvetica", 11)
-        ).pack(side="left", padx=(20, 10), pady=18, ipadx=60, ipady=9)
+        ).pack(side="left", padx=(20, 10), pady=14, ipadx=60, ipady=9)
 
         self._combobox(self.filter_bar, self.category_filter_var, ["All"] + MediaConfig.ALLOWED_CATEGORIES).pack(
-            side="left", padx=10, pady=18
+            side="left", padx=10, pady=14
         )
         self._combobox(self.filter_bar, self.status_filter_var, ["All"] + MediaConfig.ALLOWED_STATUSES).pack(
-            side="left", padx=10, pady=18
+            side="left", padx=10, pady=14
         )
         self._combobox(self.filter_bar, self.sort_by_var, ["title", "category", "status", "rating"]).pack(
-            side="left", padx=10, pady=18
+            side="left", padx=10, pady=14
         )
         self._combobox(self.filter_bar, self.sort_order_var, ["ASC", "DESC"]).pack(
-            side="left", padx=10, pady=18
+            side="left", padx=10, pady=14
         )
 
         self._make_button(
@@ -409,7 +389,7 @@ class MediaLibraryGUI(tk.Tk):
             command=self.load_items,
             bg="#00A67E",
             active_bg="#1AB890"
-        ).pack(side="left", padx=10, pady=18)
+        ).pack(side="left", padx=10, pady=14)
 
         self._make_button(
             self.filter_bar,
@@ -417,7 +397,7 @@ class MediaLibraryGUI(tk.Tk):
             command=self.export_filtered,
             bg="#2A2F36",
             active_bg="#3A414A"
-        ).pack(side="left", padx=10, pady=18)
+        ).pack(side="left", padx=10, pady=14)
 
         self._make_button(
             self.filter_bar,
@@ -425,13 +405,39 @@ class MediaLibraryGUI(tk.Tk):
             command=self.reset_filters,
             bg="#2A2F36",
             active_bg="#3A414A"
-        ).pack(side="left", padx=10, pady=18)
+        ).pack(side="left", padx=10, pady=14)
+
+        self.stats_frame = tk.Frame(self, bg="#12171C", height=34)
+        self.stats_frame.pack(fill="x", side="top")
+        self.stats_frame.pack_propagate(False)
+
+        self.stats_category_label = tk.Label(
+            self.stats_frame,
+            text="By category: -",
+            bg="#12171C",
+            fg="#DCE2E8",
+            font=("Helvetica", 10),
+            anchor="w",
+            justify="left"
+        )
+        self.stats_category_label.pack(side="left", padx=20, pady=6)
+
+        self.stats_completion_label = tk.Label(
+            self.stats_frame,
+            text="Completed: 0 | Not completed: 0",
+            bg="#12171C",
+            fg="#DCE2E8",
+            font=("Helvetica", 10, "bold"),
+            anchor="e",
+            justify="right"
+        )
+        self.stats_completion_label.pack(side="right", padx=20, pady=6)
 
         self.center_frame = tk.Frame(self, bg="#0E1114")
         self.center_frame.pack(fill="both", expand=True)
 
-        self.carousel_frame = tk.Frame(self.center_frame, bg="#0E1114", height=520)
-        self.carousel_frame.pack(fill="both", expand=True, pady=(20, 10))
+        self.carousel_frame = tk.Frame(self.center_frame, bg="#0E1114", height=360)
+        self.carousel_frame.pack(fill="x", expand=False, pady=(10, 8))
         self.carousel_frame.pack_propagate(False)
 
         self.nav_frame = tk.Frame(self.center_frame, bg="#0E1114")
@@ -466,7 +472,7 @@ class MediaLibraryGUI(tk.Tk):
             width=4
         ).pack(side="right", padx=(10, 25))
 
-        self.details_frame = tk.Frame(self, bg="#14191F", height=220)
+        self.details_frame = tk.Frame(self, bg="#14191F", height=170)
         self.details_frame.pack(fill="x", side="bottom")
         self.details_frame.pack_propagate(False)
 
@@ -495,17 +501,17 @@ class MediaLibraryGUI(tk.Tk):
 
     def _build_details_panel(self):
         left = tk.Frame(self.details_frame, bg="#14191F")
-        left.pack(side="left", fill="both", expand=True, padx=25, pady=20)
+        left.pack(side="left", fill="both", expand=True, padx=24, pady=16)
 
         self.details_title = tk.Label(
             left,
             text="No item selected",
             bg="#14191F",
             fg="white",
-            font=("Helvetica", 20, "bold"),
+            font=("Helvetica", 18, "bold"),
             anchor="w"
         )
-        self.details_title.pack(fill="x", pady=(0, 10))
+        self.details_title.pack(fill="x", pady=(0, 8))
 
         self.details_meta = tk.Label(
             left,
@@ -515,7 +521,7 @@ class MediaLibraryGUI(tk.Tk):
             font=("Helvetica", 11),
             anchor="w"
         )
-        self.details_meta.pack(fill="x", pady=(0, 12))
+        self.details_meta.pack(fill="x", pady=(0, 8))
 
         self.details_notes = tk.Label(
             left,
@@ -523,14 +529,14 @@ class MediaLibraryGUI(tk.Tk):
             bg="#14191F",
             fg="#DCE2E8",
             font=("Helvetica", 11),
-            anchor="nw",
+            anchor="w",
             justify="left",
-            wraplength=920
+            wraplength=900
         )
-        self.details_notes.pack(fill="both", expand=True)
+        self.details_notes.pack(fill="x")
 
         right = tk.Frame(self.details_frame, bg="#14191F")
-        right.pack(side="right", padx=25, pady=20)
+        right.pack(side="right", padx=24, pady=16, anchor="n")
 
         self.details_path = tk.Label(
             right,
@@ -540,20 +546,17 @@ class MediaLibraryGUI(tk.Tk):
             font=("Helvetica", 10),
             justify="right",
             anchor="e",
-            wraplength=320
+            wraplength=300
         )
-        self.details_path.pack()
-
-        actions = tk.Frame(self.details_frame, bg="#14191F")
-        actions.pack(side="bottom", fill="x", padx=25, pady=(0, 18))
+        self.details_path.pack(anchor="e", pady=(0, 10))
 
         self._make_button(
-            actions,
+            right,
             text="Edit Selected",
             command=self.open_edit_dialog,
             bg="#2E7CF6",
             active_bg="#4B91FF"
-        ).pack(side="right")
+        ).pack(anchor="e")
 
     def load_items(self):
         title_query = self.search_var.get().strip()
@@ -576,6 +579,7 @@ class MediaLibraryGUI(tk.Tk):
         self.selected_index = 0 if items else -1
         self.render_carousel()
         self.update_details()
+        self.update_statistics()
 
     def _sort_loaded_items(self, items, sort_by, sort_order):
         reverse = sort_order == "DESC"
@@ -607,8 +611,9 @@ class MediaLibraryGUI(tk.Tk):
             text=f"{len(self.filtered_items)} items   |   Selected: {self.selected_index + 1}/{len(self.filtered_items)}"
         )
 
-        center_x = 730
-        center_y = 240
+        frame_width = max(self.carousel_frame.winfo_width(), 1200)
+        center_x = frame_width // 2
+        center_y = 155
 
         visible_offsets = [-3, -2, -1, 0, 1, 2, 3]
         for offset in visible_offsets:
@@ -619,17 +624,17 @@ class MediaLibraryGUI(tk.Tk):
             item = self.filtered_items[index]
 
             if offset == 0:
-                width, height = 250, 360
-                y = center_y
+                width, height = 190, 270
                 x = center_x
+                y = center_y
                 border = "#5A616B"
                 text_color = "white"
             else:
-                factor = max(0.55, 1 - abs(offset) * 0.12)
-                width = int(250 * factor)
-                height = int(360 * factor)
-                x = center_x + (offset * 165)
-                y = center_y + abs(offset) * 18
+                factor = max(0.6, 1 - abs(offset) * 0.13)
+                width = int(190 * factor)
+                height = int(270 * factor)
+                x = center_x + (offset * 145)
+                y = center_y + abs(offset) * 12
                 border = "#2B3138"
                 text_color = "#B9C2CB"
 
@@ -645,7 +650,6 @@ class MediaLibraryGUI(tk.Tk):
             )
             label.image = image
             label.place(x=x, y=y, anchor="center")
-
             label.bind("<Button-1>", lambda e, idx=index: self.select_index(idx))
 
             title = tk.Label(
@@ -654,11 +658,11 @@ class MediaLibraryGUI(tk.Tk):
                 bg="#0E1114",
                 fg=text_color,
                 font=("Helvetica", 12 if offset == 0 else 10, "bold"),
-                wraplength=180,
+                wraplength=170,
                 justify="center",
                 cursor="hand2"
             )
-            title.place(x=x, y=y + (height // 2) + 24, anchor="center")
+            title.place(x=x, y=y + (height // 2) + 20, anchor="center")
             title.bind("<Button-1>", lambda e, idx=index: self.select_index(idx))
 
     def load_cover(self, path, size):
@@ -716,6 +720,23 @@ class MediaLibraryGUI(tk.Tk):
         )
         self.details_notes.config(text=f"Notes: {item.notes if item.notes else '-'}")
         self.details_path.config(text=f"Cover path: {item.image_path if item.image_path else '-'}")
+
+    def update_statistics(self):
+        stats = self.db.get_all_statistics()
+        category_stats = stats["by_category"]
+        completion_stats = stats["completion"]
+
+        if category_stats:
+            category_text = " | ".join(
+                [f"{category}: {count}" for category, count in category_stats.items()]
+            )
+        else:
+            category_text = "No items"
+
+        self.stats_category_label.config(text=f"By category: {category_text}")
+        self.stats_completion_label.config(
+            text=f"Completed: {completion_stats['completed']}   |   Not completed: {completion_stats['not_completed']}"
+        )
 
     def get_selected_item(self):
         if not self.filtered_items or self.selected_index < 0:

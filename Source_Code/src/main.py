@@ -169,12 +169,29 @@ def export_filtered_items_flow(db: MediaDatabase):
     full_path = db.export_items_to_csv(items, file_name)
     print(f"Filtered items exported successfully to: {full_path}\n")
 
+def show_statistics_flow(db: MediaDatabase):
+    stats = db.get_all_statistics()
+    category_stats = stats["by_category"]
+    completion_stats = stats["completion"]
+
+    print("\n=== Statistics ===")
+
+    print("\nTotal by Category:")
+    if not category_stats:
+        print("No items found.")
+    else:
+        for category, count in category_stats.items():
+            print(f"- {category}: {count}")
+
+    print("\nWatched / Unwatched:")
+    print(f"- Completed: {completion_stats['completed']}")
+    print(f"- Not Completed: {completion_stats['not_completed']}")
+    print()
 
 def main():
     db = MediaDatabase()
 
     while True:
-        print("=== Media Library Tracker ===")
         print("1. Add item")
         print("2. View all items")
         print("3. Delete item")
@@ -182,7 +199,8 @@ def main():
         print("5. Sort items")
         print("6. Toggle watched/read status")
         print("7. Export filtered items to CSV")
-        print("8. Exit")
+        print("8. Show statistics")
+        print("9. Exit")
 
         choice = input("Choose an option: ").strip()
 
@@ -201,6 +219,8 @@ def main():
         elif choice == "7":
             export_filtered_items_flow(db)
         elif choice == "8":
+            show_statistics_flow(db)
+        elif choice == "9":
             print("Goodbye.")
             break
         else:
