@@ -52,16 +52,26 @@ python3 main.py
 ```
 > **Note:**  The CLI version allows you to test the core functionality of the application directly from the terminal, including adding items, viewing records, deleting entries, searching, sorting, exporting to CSV, and displaying statistics.
 
-## Tasks
-- Define structure: Title, Category, Status, Rating, Notes. Choose storage method (SQLite or JSON).
-- Add/view/delete items. Store records persistently.
-- Implement sorting and searching by fields.
-- Add "mark as watched/read" toggle.
-- Add export filtered list to CSV button.
-- Add optional image (poster/cover path). ?? 
-- Add GUI using `tkinter`.
-- Add statistics (total by category, watched vs. unwatched).
-- Handle errors, test edge cases (missing data).
-- Final testing. Create README with instructions and screenshots. Submit as Git repo.
+## User Interface Overview
 
-## Estimated time to work 2 weeks
+![Screenshot](Screenshots/Main_Screen.png)
+
+The application provides a graphical user interface for managing personal media collections in a simple and visually organized way. The main window is built around a cover-based browsing experience, allowing the user to move through stored items, inspect their details, and manage the library through an interactive layout.
+
+![Screenshot](Screenshots/add.png)
+
+At the top of the interface, the user can access the main action buttons for adding new items, deleting the selected item, and toggling its status. The same area also includes search, filtering, and sorting controls, making it possible to quickly locate specific entries in the collection and organize the displayed results more effectively.
+
+![Screenshot](Screenshots/filter.png)
+
+A small statistics panel is also included in the main window. It provides a summary of the collection by showing the total number of items per category, as well as the number of completed and not completed entries. This gives the user a quick overview of the current state of the media library.
+
+The central area of the interface displays the stored media items through a cover carousel layout. The selected item is shown more prominently in the center, while nearby items appear on the sides, allowing the user to browse the collection in a more visual and dynamic way. Navigation can be performed either through the on-screen arrow buttons or with the keyboard.
+
+At the bottom of the window, a details panel displays the information of the currently selected item. This section includes the title, category, status, rating, notes, and cover path. It also contains the **Edit Selected** button, which opens a separate edit window with the existing data already filled in, allowing the user to update item information more easily.
+
+![Screenshot](Screenshots/edit.png)
+
+When the user chooses to add a new item or edit an existing one, a separate dialog window appears. Through this window, the user can enter or modify the media title, category, status, rating, notes, and cover image path. A **Browse** option is also available for selecting an image file directly from the system.
+
+The interface also supports exporting the currently filtered results to CSV format. This allows the user to save and reuse subsets of the collection outside the application. Overall, the GUI was designed to combine functionality and usability, while presenting the media library in a more attractive and user-friendly form.
