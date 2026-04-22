@@ -1,3 +1,9 @@
+#This file contains the MediaItem class which represents a media item in the media library tracker application. 
+#The class includes attributes for the title, category, status, rating, notes, image path, and item ID. It also 
+#includes validation logic to ensure that the data for each media item is valid according to the defined rules 
+#for categories, statuses, and ratings. The MediaItem class is used throughout the application to create, 
+#update, and manage media items in the library.  
+
 from dataclasses import dataclass, field
 from typing import Optional
 

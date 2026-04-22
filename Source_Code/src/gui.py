@@ -1,3 +1,12 @@
+#This file contains the MediaLibraryGUI class which implements the graphical user interface for the media 
+# library tracker application using Tkinter. The GUI allows users to view, add, edit, delete, and filter 
+# media items in a visually appealing way. It includes a carousel display for media items, a details 
+# panel for the selected item, and various controls for managing the media library. The class interacts 
+# with the MediaDatabase to perform all data operations and updates the interface accordingly. The GUI is 
+# designed to be user-friendly and responsive, providing an enjoyable experience for users to manage their 
+# media collection.    
+
+
 import os
 import tkinter as tk
 from tkinter import messagebox, filedialog

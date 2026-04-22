@@ -1,6 +1,16 @@
+#This file contains the MediaDatabase class which manages the SQLite database for the media library tracker 
+#application. It provides methods for adding, updating, retrieving, deleting, searching, sorting, and exporting 
+#media items, as well as generating statistics about the media collection. The class also handles database 
+# initialization and migration from older versions of the application.
+#All the database interactions are encapsulated within this class, ensuring a clean separation of concerns and 
+#making it easier to maintain and extend the application's functionality in the future.
+
 import csv
 import os
+import shutil
 import sqlite3
+import sys
+from pathlib import Path
 from typing import List, Optional
 
 from models import MediaItem
@@ -10,18 +20,60 @@ class MediaDatabase:
     ALLOWED_SORT_FIELDS = ["title", "category", "status", "rating"]
     ALLOWED_SORT_ORDERS = ["ASC", "DESC"]
 
-    def __init__(self, db_name: str = "../data/media_library.db"):
-        self.db_name = db_name
+    def __init__(self, db_name: Optional[str] = None):
+        self.app_name = "Media Library Tracker"
+
+        if db_name is not None:
+            self.db_name = db_name
+        else:
+            self.db_name = self._default_database_path()
+
+        self.exports_dir = self._default_exports_path()
+
         self._ensure_data_directories()
+        self._migrate_old_database_if_needed()
         self._create_table()
 
-    def _ensure_data_directories(self) -> None:
-        db_folder = os.path.dirname(self.db_name)
-        if db_folder:
-            os.makedirs(db_folder, exist_ok=True)
+    def _default_database_path(self) -> str:
+        if sys.platform == "darwin":
+            app_support = Path.home() / "Library" / "Application Support" / self.app_name
+            return str(app_support / "media_library.db")
 
-        export_folder = os.path.join(os.path.dirname(self.db_name), "exports")
-        os.makedirs(export_folder, exist_ok=True)
+        return "../data/media_library.db"
+
+    def _default_exports_path(self) -> Path:
+        if sys.platform == "darwin":
+            return Path.home() / "Library" / "Application Support" / self.app_name / "exports"
+
+        return Path("../data/exports")
+
+    def _ensure_data_directories(self) -> None:
+        db_folder = Path(self.db_name).parent
+        db_folder.mkdir(parents=True, exist_ok=True)
+        self.exports_dir.mkdir(parents=True, exist_ok=True)
+
+    def _migrate_old_database_if_needed(self) -> None:
+        new_db_path = Path(self.db_name)
+
+        if sys.platform != "darwin":
+            return
+
+        if new_db_path.exists():
+            return
+
+        possible_old_paths = [
+            Path(__file__).resolve().parent.parent / "data" / "media_library.db",
+            Path.cwd() / "data" / "media_library.db",
+            Path.cwd() / "media_library.db",
+        ]
+
+        for old_path in possible_old_paths:
+            if old_path.exists():
+                try:
+                    shutil.copy2(old_path, new_db_path)
+                except OSError:
+                    pass
+                break
 
     def _connect(self):
         return sqlite3.connect(self.db_name)
@@ -58,6 +110,25 @@ class MediaDatabase:
             ))
             conn.commit()
             return cursor.lastrowid
+
+    def update_item(self, item: MediaItem) -> bool:
+        with self._connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE media_items
+                SET title = ?, category = ?, status = ?, rating = ?, notes = ?, image_path = ?
+                WHERE id = ?
+            """, (
+                item.title,
+                item.category,
+                item.status,
+                item.rating,
+                item.notes,
+                item.image_path,
+                item.item_id
+            ))
+            conn.commit()
+            return cursor.rowcount > 0
 
     def get_all_items(self) -> List[MediaItem]:
         with self._connect() as conn:
@@ -173,22 +244,14 @@ class MediaDatabase:
         if item is None:
             return False
 
-        if item.status == "Completed":
-            new_status = "Planned"
-        else:
-            new_status = "Completed"
-
+        new_status = "Planned" if item.status == "Completed" else "Completed"
         return self.update_status(item_id, new_status)
 
     def export_items_to_csv(self, items: List[MediaItem], file_name: str) -> str:
         if not file_name.lower().endswith(".csv"):
             file_name += ".csv"
 
-        data_folder = os.path.dirname(self.db_name)
-        export_folder = os.path.join(data_folder, "exports")
-        os.makedirs(export_folder, exist_ok=True)
-
-        full_path = os.path.join(export_folder, file_name)
+        full_path = self.exports_dir / file_name
 
         with open(full_path, mode="w", newline="", encoding="utf-8") as csv_file:
             writer = csv.writer(csv_file)
@@ -213,36 +276,7 @@ class MediaDatabase:
                     item.image_path
                 ])
 
-        return full_path
-
-    def _row_to_media_item(self, row) -> MediaItem:
-        return MediaItem(
-            item_id=row[0],
-            title=row[1],
-            category=row[2],
-            status=row[3],
-            rating=row[4],
-            notes=row[5] or "",
-            image_path=row[6] or ""
-        )
-    def update_item(self, item: MediaItem) -> bool:
-        with self._connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE media_items
-                SET title = ?, category = ?, status = ?, rating = ?, notes = ?, image_path = ?
-                WHERE id = ?
-            """, (
-                item.title,
-                item.category,
-                item.status,
-                item.rating,
-                item.notes,
-                item.image_path,
-                item.item_id
-            ))
-            conn.commit()
-            return cursor.rowcount > 0
+        return str(full_path)
 
     def get_category_statistics(self) -> dict:
         with self._connect() as conn:
@@ -255,20 +289,15 @@ class MediaDatabase:
             """)
             rows = cursor.fetchall()
 
-        stats = {}
-        for category, count in rows:
-            stats[category] = count
-
-        return stats
-
+        return {category: count for category, count in rows}
 
     def get_completion_statistics(self) -> dict:
         with self._connect() as conn:
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT
-                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed_count,
-                    SUM(CASE WHEN status != 'Completed' THEN 1 ELSE 0 END) AS not_completed_count
+                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END),
+                    SUM(CASE WHEN status != 'Completed' THEN 1 ELSE 0 END)
                 FROM media_items
             """)
             row = cursor.fetchone()
@@ -281,11 +310,19 @@ class MediaDatabase:
             "not_completed": not_completed
         }
 
-
     def get_all_statistics(self) -> dict:
         return {
             "by_category": self.get_category_statistics(),
             "completion": self.get_completion_statistics()
-        }   
+        }
 
-            
+    def _row_to_media_item(self, row) -> MediaItem:
+        return MediaItem(
+            item_id=row[0],
+            title=row[1],
+            category=row[2],
+            status=row[3],
+            rating=row[4],
+            notes=row[5] or "",
+            image_path=row[6] or ""
+        )

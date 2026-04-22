@@ -1,3 +1,11 @@
+#This class contains the main function which serves as the entry point for the media library tracker application. 
+# It provides a command-line interface for users to interact with the application, allowing them to 
+# add, view, delete, search, sort, and export media items, as well as view statistics about their 
+# media collection. The main function uses the MediaDatabase class to perform all database operations 
+# and the MediaItem class to represent individual media items. The user interface is designed to be 
+# simple and intuitive, guiding users through various actions with prompts and feedback messages.
+# it also represents the CLI menu of the application.
+
 from database import MediaDatabase
 from models import MediaItem, MediaConfig
 
