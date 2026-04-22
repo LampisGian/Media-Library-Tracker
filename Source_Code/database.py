@@ -1,7 +1,4 @@
 import sqlite3
-from typing import List, Optional
-
-from models import MediaItem
 
 
 class MediaDatabase:
@@ -26,50 +23,4 @@ class MediaDatabase:
                     image_path TEXT
                 )
             """)
-            conn.commit()
-
-    def add_item(self, item: MediaItem) -> None:
-        with self._connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO media_items (title, category, status, rating, notes, image_path)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (
-                item.title,
-                item.category,
-                item.status,
-                item.rating,
-                item.notes,
-                item.image_path
-            ))
-            conn.commit()
-
-    def get_all_items(self) -> List[MediaItem]:
-        with self._connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT id, title, category, status, rating, notes, image_path
-                FROM media_items
-            """)
-            rows = cursor.fetchall()
-
-        items = []
-        for row in rows:
-            items.append(
-                MediaItem(
-                    item_id=row[0],
-                    title=row[1],
-                    category=row[2],
-                    status=row[3],
-                    rating=row[4],
-                    notes=row[5] or "",
-                    image_path=row[6] or ""
-                )
-            )
-        return items
-
-    def delete_item(self, item_id: int) -> None:
-        with self._connect() as conn:
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM media_items WHERE id = ?", (item_id,))
             conn.commit()

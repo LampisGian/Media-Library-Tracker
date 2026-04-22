@@ -8,7 +8,7 @@ def main():
     sample_item = MediaItem(
         title="Inception",
         category="Movie",
-        status="Watched",
+        status="Completed",
         rating=9.0,
         notes="Mind-bending sci-fi movie",
         image_path=""
