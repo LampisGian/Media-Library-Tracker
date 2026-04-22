@@ -14,7 +14,8 @@ def print_items(items):
             f"Category: {item.category} | "
             f"Status: {item.status} | "
             f"Rating: {item.rating} | "
-            f"Notes: {item.notes}"
+            f"Notes: {item.notes} | "
+            f"Image Path: {item.image_path}"
         )
 
 
@@ -153,14 +154,11 @@ def export_filtered_items_flow(db: MediaDatabase):
     title = input("Filter by title: ").strip()
     category = input("Filter by category: ").strip()
     status = input("Filter by status: ").strip()
-    file_name = input("Enter CSV file name (example: exported_items.csv): ").strip()
+    file_name = input("Enter CSV file name: ").strip()
 
     if not file_name:
         print("File name cannot be empty.\n")
         return
-
-    if not file_name.lower().endswith(".csv"):
-        file_name += ".csv"
 
     items = db.search_items(title=title, category=category, status=status)
 
@@ -168,8 +166,8 @@ def export_filtered_items_flow(db: MediaDatabase):
         print("No matching items found. CSV file was not created.\n")
         return
 
-    db.export_items_to_csv(items, file_name)
-    print(f"Filtered items exported successfully to {file_name}.\n")
+    full_path = db.export_items_to_csv(items, file_name)
+    print(f"Filtered items exported successfully to: {full_path}\n")
 
 
 def main():
