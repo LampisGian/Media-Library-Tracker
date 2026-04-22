@@ -1,3 +1,5 @@
+import csv
+import os
 import sqlite3
 from typing import List, Optional
 
@@ -8,14 +10,23 @@ class MediaDatabase:
     ALLOWED_SORT_FIELDS = ["title", "category", "status", "rating"]
     ALLOWED_SORT_ORDERS = ["ASC", "DESC"]
 
-    def __init__(self, db_name: str = "media_library.db"):
+    def __init__(self, db_name: str = "../data/media_library.db"):
         self.db_name = db_name
+        self._ensure_data_directories()
         self._create_table()
+
+    def _ensure_data_directories(self) -> None:
+        db_folder = os.path.dirname(self.db_name)
+        if db_folder:
+            os.makedirs(db_folder, exist_ok=True)
+
+        export_folder = os.path.join(os.path.dirname(self.db_name), "exports")
+        os.makedirs(export_folder, exist_ok=True)
 
     def _connect(self):
         return sqlite3.connect(self.db_name)
 
-    def _create_table(self):
+    def _create_table(self) -> None:
         with self._connect() as conn:
             cursor = conn.cursor()
             cursor.execute("""
@@ -168,6 +179,41 @@ class MediaDatabase:
             new_status = "Completed"
 
         return self.update_status(item_id, new_status)
+
+    def export_items_to_csv(self, items: List[MediaItem], file_name: str) -> str:
+        if not file_name.lower().endswith(".csv"):
+            file_name += ".csv"
+
+        data_folder = os.path.dirname(self.db_name)
+        export_folder = os.path.join(data_folder, "exports")
+        os.makedirs(export_folder, exist_ok=True)
+
+        full_path = os.path.join(export_folder, file_name)
+
+        with open(full_path, mode="w", newline="", encoding="utf-8") as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow([
+                "ID",
+                "Title",
+                "Category",
+                "Status",
+                "Rating",
+                "Notes",
+                "Image Path"
+            ])
+
+            for item in items:
+                writer.writerow([
+                    item.item_id,
+                    item.title,
+                    item.category,
+                    item.status,
+                    item.rating,
+                    item.notes,
+                    item.image_path
+                ])
+
+        return full_path
 
     def _row_to_media_item(self, row) -> MediaItem:
         return MediaItem(

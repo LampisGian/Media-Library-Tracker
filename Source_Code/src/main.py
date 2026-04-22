@@ -146,6 +146,32 @@ def toggle_status_flow(db: MediaDatabase):
         print("No item found with that ID.\n")
 
 
+def export_filtered_items_flow(db: MediaDatabase):
+    print("\nExport Filtered Items to CSV")
+    print("Leave fields empty if you do not want to use them.")
+
+    title = input("Filter by title: ").strip()
+    category = input("Filter by category: ").strip()
+    status = input("Filter by status: ").strip()
+    file_name = input("Enter CSV file name (example: exported_items.csv): ").strip()
+
+    if not file_name:
+        print("File name cannot be empty.\n")
+        return
+
+    if not file_name.lower().endswith(".csv"):
+        file_name += ".csv"
+
+    items = db.search_items(title=title, category=category, status=status)
+
+    if not items:
+        print("No matching items found. CSV file was not created.\n")
+        return
+
+    db.export_items_to_csv(items, file_name)
+    print(f"Filtered items exported successfully to {file_name}.\n")
+
+
 def main():
     db = MediaDatabase()
 
@@ -157,7 +183,8 @@ def main():
         print("4. Search items")
         print("5. Sort items")
         print("6. Toggle watched/read status")
-        print("7. Exit")
+        print("7. Export filtered items to CSV")
+        print("8. Exit")
 
         choice = input("Choose an option: ").strip()
 
@@ -174,6 +201,8 @@ def main():
         elif choice == "6":
             toggle_status_flow(db)
         elif choice == "7":
+            export_filtered_items_flow(db)
+        elif choice == "8":
             print("Goodbye.")
             break
         else:
